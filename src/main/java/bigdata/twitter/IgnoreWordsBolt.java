@@ -33,7 +33,8 @@ public class IgnoreWordsBolt extends BaseRichBolt {
     	String language = (String) input.getValueByField("language");
         String word = (String) input.getValueByField("word");
         
-        if ((!BLACKLIST_WORDS.contains(word)) && (LANGUAGES.contains(language))) {
+        //if ((!BLACKLIST_WORDS.contains(word)) && (LANGUAGES.contains(language))) {
+        if (!BLACKLIST_WORDS.contains(word)) {
             collector.emit(new Values(word));
         }
     }

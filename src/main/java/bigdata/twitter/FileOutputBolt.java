@@ -19,8 +19,7 @@ import backtype.storm.tuple.Tuple;
 public class FileOutputBolt extends BaseRichBolt {
     private File file;
  
-    public FileOutputBolt(File file) {
-    	this.file = file;
+    public FileOutputBolt() {
     }
    
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
@@ -30,7 +29,8 @@ public class FileOutputBolt extends BaseRichBolt {
     }
 
     public void execute(Tuple input) {
-
+    	int number = (Integer) input.getValueByField("number");
+    	File file = new File("result"+number+".json");
         SortedMap<Integer, String> trendings = (SortedMap<Integer, String>) input.getValueByField("trendings");
         try {
         	JSONObject obj = new JSONObject();

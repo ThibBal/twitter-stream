@@ -27,7 +27,7 @@ public class WordSplitterBolt extends BaseRichBolt {
     public void execute(Tuple input) {
         Status tweet = (Status) input.getValueByField("tweet");
         String language = tweet.getUser().getLang(); // langue du tweet
-        String text = tweet.getText().replaceAll("\\p{Punct}|\n", " ").toLowerCase(); // mise en miniscule et remplace la ponctuation
+        String text = tweet.getText().replaceAll("\\p{Punct}|\n|\u2026", " ").toLowerCase(); // mise en miniscule et remplace la ponctuation
         String[] words = text.split(" "); // casse les phrases pour r�cup�rer les mots
         
         for (String word : words) {
