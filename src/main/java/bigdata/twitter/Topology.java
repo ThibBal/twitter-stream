@@ -8,23 +8,16 @@ public class Topology {
 
 	public static void main(String[] args) {
 		Config config = new Config();
-		TopologyBuilder b = new TopologyBuilder();
-		b.setSpout("TwitterSpout", new TwitterSpout());
-        b.setBolt("WordSplitBolt", new WordSplitBolt()).shuffleGrouping("TwitterSpout");
-        b.setBolt("WordsFilterBolt", new WordsFilterBolt(5)).shuffleGrouping("WordSplitBolt");
-        b.setBolt("WordCountBolt", new WordCountBolt(30, 120, 20)).shuffleGrouping("WordsFilterBolt");
-        b.setBolt("FileOutputBolt", new FileOutputBolt()).shuffleGrouping("WordCountBolt");
+		TopologyBuilder build = new TopologyBuilder();
+		build.setSpout("TwitterSpout", new TwitterSpout());
+		build.setBolt("WordSplitBolt", new WordSplitBolt()).shuffleGrouping("TwitterSpout");
+		build.setBolt("WordsFilterBolt", new WordsFilterBolt(5)).shuffleGrouping("WordSplitBolt");
+		build.setBolt("WordCountBolt", new WordCountBolt(30, 120, 20)).shuffleGrouping("WordsFilterBolt");
+		build.setBolt("ResultBolt", new ResultBolt()).shuffleGrouping("WordCountBolt");
+        build.setBolt("FileOutputBolt", new FileOutputBolt()).shuffleGrouping("ResultBolt");
         
 		final LocalCluster cluster = new LocalCluster();
-		cluster.submitTopology("Twitter trends", config, b.createTopology());
-
-//		Runtime.getRuntime().addShutdownHook(new Thread() {
-//			public void run() {
-//				cluster.killTopology("Twitter trends");
-//				cluster.shutdown();
-//			}
-//		});
-		
+		cluster.submitTopology("Twitter trends", config, build.createTopology());		
 	}
 
 }

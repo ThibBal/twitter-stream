@@ -40,7 +40,9 @@ public class WordsFilterBolt extends BaseRichBolt {
         String word = (String) input.getValueByField("word");
         
         //if ((!BLACKLIST_WORDS.contains(word)) && (LANGUAGES.contains(language))) {
-        if ((!BLACKLIST_WORDS.contains(word)) && (word.length() >= minLength) ) {
+        if ((!BLACKLIST_WORDS.contains(word))
+        		&& (LANGUAGES.contains(language))
+        		&& (word.length() >= minLength) ) {
             collector.emit(new Values(word));
         }
     }

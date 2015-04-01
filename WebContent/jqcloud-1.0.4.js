@@ -11,8 +11,7 @@
 
 function cloud(){  
 	var topics = [];
-	var trends = [];
-	$.getJSON("result1.json", function( data ) {
+	$.getJSON("result.json", function( data ) {
 		  $.each( data, function( key, val ) {
 					    topics.push({ 
 					        "text" : key,

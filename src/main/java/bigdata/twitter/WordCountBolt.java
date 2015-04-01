@@ -16,40 +16,39 @@ import backtype.storm.tuple.Values;
 
 
 public class WordCountBolt extends BaseRichBolt {
-	
-    // Nombre de secondes avant la fin du compte
-    private final long logIntervalSec;
-    // Nombre de secondes avant la fin de l'intervalle
-    private final long clearIntervalSec;
-    // Nombre de mots à afficher
-    private final int topListSize;
+
+    private final long chunkTime;
+    private final long clearTime;
+    private final int trendSize;
 
     private OutputCollector collector;
     
+    private Map<Integer, SortedMap<Integer, String>> results;
     private Map<String, Integer> counts;
-    private long lastLogTime;
+    private long lastChunkTime;
     private long lastClearTime;
     private int number = 1;
 
-    public WordCountBolt(long logIntervalSec, long clearIntervalSec, int topListSize) {
-        this.logIntervalSec = logIntervalSec;
-        this.clearIntervalSec = clearIntervalSec;
-        this.topListSize = topListSize;
+    public WordCountBolt(long chunkTime, long clearTime, int trendSize) {
+        this.chunkTime = chunkTime;
+        this.clearTime = clearTime;
+        this.trendSize = trendSize;
     }
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
     	counts = new HashMap<String, Integer>();
-        lastLogTime = System.currentTimeMillis();
+    	results = new HashMap<Integer, SortedMap<Integer, String>>();
+        lastChunkTime = System.currentTimeMillis();
         lastClearTime = System.currentTimeMillis();
         this.collector = collector;
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-    	outputFieldsDeclarer.declare(new Fields("trendings", "number"));
+    	outputFieldsDeclarer.declare(new Fields("results"));
     }
 
     public void execute(Tuple input) {
-    	long now = System.currentTimeMillis();
+    	long currentTime = System.currentTimeMillis();
         String word = (String) input.getValueByField("word");
 
         Integer count = counts.get(word);
@@ -57,22 +56,15 @@ public class WordCountBolt extends BaseRichBolt {
     	   count = 0;
         }
         count++;
-        // count = count == null ? 1L : count + 1;
-        // récupère le mot et le count en flux
-        counts.put(word, count);
-       
 
-        // word : mot , count : total du mot       
-        long logPeriodSec = (now - lastLogTime) / 1000;
+        counts.put(word, count);
+             
+        long executionTime = (currentTime - lastChunkTime) / 1000;
        
-//        if(System.currentTimeMillis() > now + 3000) {
-//        	topList(counter);
-//        }
-       
-        if (logPeriodSec > logIntervalSec) {
+        if (executionTime > chunkTime) {
             System.out.println("Words counted: "+counts.size());
             topList(counts);
-            lastLogTime = now;
+            lastChunkTime = currentTime;
             counts.clear();
             number++;
         }
@@ -86,24 +78,23 @@ public class WordCountBolt extends BaseRichBolt {
         for (Map.Entry<String, Integer> entry : counts.entrySet()) {
             int count = entry.getValue();
             String word = entry.getKey();
-                     
+            
             trendings.put(count, word); // not good put replaces the counts egals
             
-            if (trendings.size() > topListSize) {
+            if (trendings.size() > trendSize) {
             	trendings.remove(trendings.firstKey());
             }
         }
         
-        System.out.println(number);
+        results.put(number, trendings);
+        System.out.println("Number: "+number);
         System.out.println("Number of trendings: "+trendings.size());
-        collector.emit(new Values(trendings, number)); // envoi vers le prochain bolt pour affichage
-    	
-        // Remettre à zéro les comptes
-        long now = System.currentTimeMillis();
-        if (now - lastClearTime > clearIntervalSec * 1000) {
-        	System.out.println("FIN DU COMPTE ON REPREND A ZERO - 1");
-            lastClearTime = now;
-            
+        collector.emit(new Values(results));
+        long currentTime = System.currentTimeMillis();
+        
+        if (currentTime - lastClearTime > clearTime * 1000) {
+        	System.out.println("FIN DU COMPTE");
+            lastClearTime = currentTime;            
             number = 0;
         }
     }
@@ -121,7 +112,7 @@ public class WordCountBolt extends BaseRichBolt {
 //    trendings.put(word, count); // not good put replaces the counts egals
 //    // put(key, value)
 //    
-//    if (trendings.size() > topListSize) {
+//    if (trendings.size() > trendSize) {
 //    	trendings.remove(trendings.firstKey());
 //    }
 //}

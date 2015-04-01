@@ -18,12 +18,8 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 
-
 public class FileOutputBolt extends BaseRichBolt {
-    private SortedMap<String, Integer>counts = new TreeMap<String, Integer>(); 
-    private ArrayList<SortedMap<String, Integer>> itemsList = new ArrayList<SortedMap<String, Integer>>();
-
-
+	
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
     }
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -31,42 +27,21 @@ public class FileOutputBolt extends BaseRichBolt {
 
 
     public void execute(Tuple input) {
-    	int number = (Integer) input.getValueByField("number");
-    	number = number - 1;
-    	counts.clear();
+    	File file = new File("WebContent/result.json");
     	
-//    	if (number == 4){
-//    		System.out.println("FIN DU COMPTE ON REPREND A ZERO");
-//    		counts.clear();
-//    	}
-    	
-    	File file = new File("WebContent/result"+number+".json");
-        SortedMap<Integer, String> trendings = (SortedMap<Integer, String>) input.getValueByField("trendings");
         try {
-        	JSONObject obj = new JSONObject();
-        	
-        	for (Map.Entry<Integer, String> entry : trendings.entrySet()) {
-        		String word = entry.getValue();
-        		Integer count = entry.getKey();
-            	obj.put(word, count);
-            	counts.put(word, count);
-//            	if(counts.containsKey(word)) {
-//            		count = counts.get(word) + count;
-//            	}
-              }
-        	itemsList.add(number, counts);
-        	System.out.println(itemsList);
+        	JSONObject result = (JSONObject) input.getValueByField("result");
 			if (!file.exists()) {
 				file.createNewFile();
 			}
 			 
 			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
-			//System.out.println(counts);
-			bw.write(obj.toJSONString());
+			bw.write(result.toJSONString());
 			bw.close();
  
-			System.out.println("Résultat enregistré !");
+			System.out.println("Result recorded!");
+
 			
 		} catch (IOException  e) {
             throw new RuntimeException("Error reading file ["+ file + "]");
