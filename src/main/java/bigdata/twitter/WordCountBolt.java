@@ -15,7 +15,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
 
-public class WordCounterBolt extends BaseRichBolt {
+public class WordCountBolt extends BaseRichBolt {
 	
     // Nombre de secondes avant la fin du compte
     private final long logIntervalSec;
@@ -31,7 +31,7 @@ public class WordCounterBolt extends BaseRichBolt {
     private long lastClearTime;
     private int number = 1;
 
-    public WordCounterBolt(long logIntervalSec, long clearIntervalSec, int topListSize) {
+    public WordCountBolt(long logIntervalSec, long clearIntervalSec, int topListSize) {
         this.logIntervalSec = logIntervalSec;
         this.clearIntervalSec = clearIntervalSec;
         this.topListSize = topListSize;
@@ -73,7 +73,7 @@ public class WordCounterBolt extends BaseRichBolt {
             System.out.println("Words counted: "+counts.size());
             topList(counts);
             lastLogTime = now;
-            //counts.clear();
+            counts.clear();
             number++;
         }
     }
@@ -101,9 +101,9 @@ public class WordCounterBolt extends BaseRichBolt {
         // Remettre à zéro les comptes
         long now = System.currentTimeMillis();
         if (now - lastClearTime > clearIntervalSec * 1000) {
-        	System.out.println("FIN DU COMPTE ON REPREND A ZERO");
+        	System.out.println("FIN DU COMPTE ON REPREND A ZERO - 1");
             lastClearTime = now;
-            counts.clear();
+            
             number = 0;
         }
     }

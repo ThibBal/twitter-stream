@@ -18,8 +18,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 
-@SuppressWarnings({ "rawtypes", "serial" })
-public class TwitterSampleSpout extends BaseRichSpout {
+public class TwitterSpout extends BaseRichSpout {
 
 	private SpoutOutputCollector collector;
     private LinkedBlockingQueue<Status> queue;
@@ -54,7 +53,7 @@ public class TwitterSampleSpout extends BaseRichSpout {
 
         TwitterStreamFactory factory = new TwitterStreamFactory();
 		twitterStream = factory.getInstance();
-		twitterStream.addListener(listener); // TODO : Ajouter un filtre pour limiter les langues des tweets
+		twitterStream.addListener(listener);
 		twitterStream.sample();
 	}
 	

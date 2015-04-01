@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class IgnoreWordsBolt extends BaseRichBolt {
+public class WordsFilterBolt extends BaseRichBolt {
 
     private Set<String> BLACKLIST_WORDS = new HashSet<String>(Arrays.asList(new String[] {
             "a", "http", "the", "you", "and", "for", "that", "like", "have", "this", "just", "with", "all", "get", "about",
@@ -22,7 +22,13 @@ public class IgnoreWordsBolt extends BaseRichBolt {
     }));
     private Set<String> LANGUAGES = new HashSet<String>(Arrays.asList(new String[] {
         	"fr", "en", "es", "de", "it", "pt", "ko", "tr", "ru", "nl", "no", "sv", "fi", "da", "pl", "hu",
-        }));    
+    }));    
+    
+    private final int minLength;
+    
+    public WordsFilterBolt(int minLength) {
+        this.minLength = minLength;
+    }
     private OutputCollector collector;
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
@@ -34,13 +40,12 @@ public class IgnoreWordsBolt extends BaseRichBolt {
         String word = (String) input.getValueByField("word");
         
         //if ((!BLACKLIST_WORDS.contains(word)) && (LANGUAGES.contains(language))) {
-        if (!BLACKLIST_WORDS.contains(word)) {
+        if ((!BLACKLIST_WORDS.contains(word)) && (word.length() >= minLength) ) {
             collector.emit(new Values(word));
         }
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("word"));
-        
+        declarer.declare(new Fields("word"));        
     }
 }
