@@ -23,7 +23,7 @@ public class WordCountBolt extends BaseRichBolt {
 
     private OutputCollector collector;
     
-    private Map<Integer, SortedMap<Integer, String>> results;
+    private Map<Integer, HashMap<String, Integer>> results;
     private Map<String, Integer> counts;
     private long lastChunkTime;
     private long lastClearTime;
@@ -37,7 +37,7 @@ public class WordCountBolt extends BaseRichBolt {
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
     	counts = new HashMap<String, Integer>();
-    	results = new HashMap<Integer, SortedMap<Integer, String>>();
+    	results = new HashMap<Integer, HashMap<String, Integer>>();
         lastChunkTime = System.currentTimeMillis();
         lastClearTime = System.currentTimeMillis();
         this.collector = collector;
@@ -72,23 +72,43 @@ public class WordCountBolt extends BaseRichBolt {
     
     // calculate top list:
     private void topList(Map<String, Integer> counts) {
-    			
-        SortedMap<Integer, String> trendings = new TreeMap<Integer, String>();
+    	int minValue = 0;
+    	HashMap<String, Integer> trendings = new HashMap<String, Integer>();		
+       // SortedMap<Integer, String> trendings = new TreeMap<Integer, String>();
         
         for (Map.Entry<String, Integer> entry : counts.entrySet()) {
             int count = entry.getValue();
             String word = entry.getKey();
-            
-            trendings.put(count, word); // not good put replaces the counts egals
-            
-            if (trendings.size() > trendSize) {
-            	trendings.remove(trendings.firstKey());
+            System.out.println(word+" -----"+count);
+            if( count > minValue){
+            	trendings.put(word, count); 
+            	if(trendings.size() > trendSize){
+            		minValue = count;
+            		int secondMinValue = count;
+            		String wordMinValue = word;
+            		for(Map.Entry<String, Integer>trend : trendings.entrySet()){
+            			if( trend.getValue() < minValue ){
+            				minValue = trend.getValue();
+            				wordMinValue = trend.getKey();
+            			}
+            		}
+            		trendings.remove(wordMinValue);
+            		
+            		for(Map.Entry<String, Integer>trend : trendings.entrySet()){
+            			if( trend.getValue() < secondMinValue ){
+            				secondMinValue = trend.getValue();
+
+            			}
+            		}
+
+            	}
             }
         }
-        
+        System.out.println(minValue);
         results.put(number, trendings);
         System.out.println("Number: "+number);
         System.out.println("Number of trendings: "+trendings.size());
+        System.out.println(trendings);
         collector.emit(new Values(results));
         long currentTime = System.currentTimeMillis();
         
@@ -100,38 +120,3 @@ public class WordCountBolt extends BaseRichBolt {
     }
          
 }
-
-//ValueComparator bvc =  new ValueComparator(counts);
-//TreeMap<String,Integer> trendings = new TreeMap<String,Integer>(bvc);
-//sorted_map.putAll(trends);
-
-//for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-//    int count = entry.getValue();
-//    String word = entry.getKey();
-//
-//    trendings.put(word, count); // not good put replaces the counts egals
-//    // put(key, value)
-//    
-//    if (trendings.size() > trendSize) {
-//    	trendings.remove(trendings.firstKey());
-//    }
-//}
-//
-//System.out.println(trendings);
-
-//class ValueComparator implements Comparator<String> {
-//
-//    Map<String, Integer> base;
-//    public ValueComparator(Map<String, Integer> base) {
-//        this.base = base;
-//    }
-//
-//    // Note: this comparator imposes orderings that are inconsistent with equals.    
-//    public int compare(String a, String b) {
-//        if (base.get(a) >= base.get(b)) {
-//            return -1;
-//        } else {
-//            return 1;
-//        } // returning 0 would merge keys
-//    }
-//}

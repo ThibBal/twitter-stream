@@ -21,7 +21,7 @@ public class WordsFilterBolt extends BaseRichBolt {
             "want", "will", "know", "good", "from", "https", "because", "people", "twitter", "follow", "www", "please"
     }));
     private Set<String> LANGUAGES = new HashSet<String>(Arrays.asList(new String[] {
-        	"fr", "en", "es", "de", "it", "pt", "ko", "tr", "ru", "nl", "no", "sv", "fi", "da", "pl", "hu",
+        	"fr", "en"
     }));    
     
     private final int minLength;

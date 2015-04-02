@@ -12,7 +12,7 @@ public class Topology {
 		build.setSpout("TwitterSpout", new TwitterSpout());
 		build.setBolt("WordSplitBolt", new WordSplitBolt()).shuffleGrouping("TwitterSpout");
 		build.setBolt("WordsFilterBolt", new WordsFilterBolt(5)).shuffleGrouping("WordSplitBolt");
-		build.setBolt("WordCountBolt", new WordCountBolt(30, 120, 20)).shuffleGrouping("WordsFilterBolt");
+		build.setBolt("WordCountBolt", new WordCountBolt(30, 30*60, 20)).shuffleGrouping("WordsFilterBolt");
 		build.setBolt("ResultBolt", new ResultBolt()).shuffleGrouping("WordCountBolt");
         build.setBolt("FileOutputBolt", new FileOutputBolt()).shuffleGrouping("ResultBolt");
         

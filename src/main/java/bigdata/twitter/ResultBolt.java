@@ -18,7 +18,7 @@ import backtype.storm.tuple.Values;
 public class ResultBolt extends BaseRichBolt {
 	private OutputCollector collector;
 	private HashMap<Integer, SortedMap<Integer, String>>results;
-    private SortedMap<String, Integer>counts = new TreeMap<String, Integer>(); 
+    private HashMap<String, Integer>counts = new HashMap<String, Integer>(); 
 
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
 		this.collector = collector;
@@ -32,13 +32,13 @@ public class ResultBolt extends BaseRichBolt {
 
     public void execute(Tuple input) {
     	counts.clear();
-    	HashMap<Integer, SortedMap<Integer, String>> results = (HashMap<Integer, SortedMap<Integer, String>>) input.getValueByField("results");
+    	HashMap<Integer, HashMap<String, Integer>> results = (HashMap<Integer, HashMap<String, Integer>>) input.getValueByField("results");
         //SortedMap<Integer, String> trendings = (SortedMap<Integer, String>) input.getValueByField("results");
     	JSONObject result = new JSONObject();
-    	for (Map.Entry<Integer, SortedMap<Integer, String>> trendings : results.entrySet()) {
-        	for (Map.Entry<Integer, String> entry : trendings.getValue().entrySet()) {
-	    		String word = entry.getValue();
-	    		Integer count = entry.getKey();
+    	for (Map.Entry<Integer, HashMap<String, Integer>> trendings : results.entrySet()) {
+        	for (Map.Entry<String, Integer> entry : trendings.getValue().entrySet()) {
+	    		String word = entry.getKey();
+	    		Integer count = entry.getValue();
 	    		
 	        	if(counts.containsKey(word)) {
 	    		count = counts.get(word) + count;
@@ -48,7 +48,15 @@ public class ResultBolt extends BaseRichBolt {
 	    
 	        	
 	        	if (counts.size() > 20) {
-	            	counts.remove(counts.firstKey());
+	        		int minValue = 100000000;
+            		String wordMinValue = word;
+            		for(Map.Entry<String, Integer>trend : counts.entrySet()){
+            			if( trend.getValue() < minValue ){
+            				minValue = trend.getValue();
+            				wordMinValue = trend.getKey();
+            			}
+            		}
+            		counts.remove(wordMinValue);            		
 	            }
           }
     	}
@@ -56,8 +64,8 @@ public class ResultBolt extends BaseRichBolt {
     		for (Map.Entry<String, Integer> trend : counts.entrySet()){
     			result.put(trend.getKey(), trend.getValue());
     		}
-        	
-        	System.out.println(counts);
+//        	
+//        	System.out.println(counts);
         	
 
         	collector.emit(new Values(result)); 
