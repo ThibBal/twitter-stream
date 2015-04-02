@@ -11,7 +11,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
-public class WordSplitBolt extends BaseRichBolt {
+public class TweetSplitBolt extends BaseRichBolt {
    
     private OutputCollector collector;
 

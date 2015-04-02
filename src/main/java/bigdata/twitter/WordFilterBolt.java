@@ -13,22 +13,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class WordsFilterBolt extends BaseRichBolt {
+public class WordFilterBolt extends BaseRichBolt {
 
-    private Set<String> BLACKLIST_WORDS = new HashSet<String>(Arrays.asList(new String[] {
+    private final static Set<String> BLACKLIST_WORDS = new HashSet<String>(Arrays.asList(new String[] {
             "a", "http", "the", "you", "and", "for", "that", "like", "have", "this", "just", "with", "all", "get", "about",
             "can", "was", "not", "your", "but", "are", "one", "what", "out", "when", "get",
-            "want", "will", "know", "good", "from", "https", "because", "people", "twitter", "follow", "www", "please"
+            "want", "will", "know", "good", "from", "https", "because", "people", "twitter", "follow", "www", "please", "today", 
+            "great", "thanks"
+            
     }));
-    private Set<String> LANGUAGES = new HashSet<String>(Arrays.asList(new String[] {
-        	"fr", "en"
+    private final static Set<String> LANGUAGES = new HashSet<String>(Arrays.asList(new String[] {
+    		"fr", "en", "es", "de", "it", "pt", "ko", "tr", "ru", "nl", "no", "sv", "fi", "da", "pl", "hu"
     }));    
     
-    private final int minLength;
-    
-    public WordsFilterBolt(int minLength) {
-        this.minLength = minLength;
-    }
+    private final static int MINIMUM_LENGTH = 5;
+ 
     private OutputCollector collector;
 
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
@@ -42,7 +41,7 @@ public class WordsFilterBolt extends BaseRichBolt {
         //if ((!BLACKLIST_WORDS.contains(word)) && (LANGUAGES.contains(language))) {
         if ((!BLACKLIST_WORDS.contains(word))
         		&& (LANGUAGES.contains(language))
-        		&& (word.length() >= minLength) ) {
+        		&& (word.length() >= MINIMUM_LENGTH) ) {
             collector.emit(new Values(word));
         }
     }

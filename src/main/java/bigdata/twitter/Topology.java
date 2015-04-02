@@ -10,9 +10,9 @@ public class Topology {
 		Config config = new Config();
 		TopologyBuilder build = new TopologyBuilder();
 		build.setSpout("TwitterSpout", new TwitterSpout());
-		build.setBolt("WordSplitBolt", new WordSplitBolt()).shuffleGrouping("TwitterSpout");
-		build.setBolt("WordsFilterBolt", new WordsFilterBolt(5)).shuffleGrouping("WordSplitBolt");
-		build.setBolt("WordCountBolt", new WordCountBolt(30, 30*60, 20)).shuffleGrouping("WordsFilterBolt");
+		build.setBolt("TweetSplitBolt", new TweetSplitBolt()).shuffleGrouping("TwitterSpout");
+		build.setBolt("WordFilterBolt", new WordFilterBolt()).shuffleGrouping("TweetSplitBolt");
+		build.setBolt("WordCountBolt", new WordCountBolt(180, 1800)).shuffleGrouping("WordFilterBolt");
 		build.setBolt("ResultBolt", new ResultBolt()).shuffleGrouping("WordCountBolt");
         build.setBolt("FileOutputBolt", new FileOutputBolt()).shuffleGrouping("ResultBolt");
         

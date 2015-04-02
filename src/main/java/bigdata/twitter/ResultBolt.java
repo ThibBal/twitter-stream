@@ -3,7 +3,6 @@ package bigdata.twitter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.json.simple.JSONObject;
 
@@ -17,24 +16,22 @@ import backtype.storm.tuple.Values;
 
 public class ResultBolt extends BaseRichBolt {
 	private OutputCollector collector;
-	private HashMap<Integer, SortedMap<Integer, String>>results;
-    private HashMap<String, Integer>counts = new HashMap<String, Integer>(); 
+    private HashMap<String, Integer>counts = new HashMap<String, Integer>();
+    private final static int NUMBER_OF_FINAL_TRENDS = 20 ;
 
 	public void prepare(Map map, TopologyContext topologyContext, OutputCollector collector) {
 		this.collector = collector;
-		results = new HashMap<Integer, SortedMap<Integer, String>>();
     }
 
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
     	outputFieldsDeclarer.declare(new Fields("result"));
     }
 
-
     public void execute(Tuple input) {
     	counts.clear();
     	HashMap<Integer, HashMap<String, Integer>> results = (HashMap<Integer, HashMap<String, Integer>>) input.getValueByField("results");
-        //SortedMap<Integer, String> trendings = (SortedMap<Integer, String>) input.getValueByField("results");
-    	JSONObject result = new JSONObject();
+
+    	JSONObject JsonResult = new JSONObject();
     	for (Map.Entry<Integer, HashMap<String, Integer>> trendings : results.entrySet()) {
         	for (Map.Entry<String, Integer> entry : trendings.getValue().entrySet()) {
 	    		String word = entry.getKey();
@@ -45,9 +42,8 @@ public class ResultBolt extends BaseRichBolt {
 	    		}
 	    		
 	        	counts.put(word, count);
-	    
-	        	
-	        	if (counts.size() > 20) {
+	   
+	        	if (counts.size() > NUMBER_OF_FINAL_TRENDS) {
 	        		int minValue = 100000000;
             		String wordMinValue = word;
             		for(Map.Entry<String, Integer>trend : counts.entrySet()){
@@ -60,14 +56,10 @@ public class ResultBolt extends BaseRichBolt {
 	            }
           }
     	}
-
+    	System.out.println("JSON data: "+counts);
     		for (Map.Entry<String, Integer> trend : counts.entrySet()){
-    			result.put(trend.getKey(), trend.getValue());
-    		}
-//        	
-//        	System.out.println(counts);
-        	
-
-        	collector.emit(new Values(result)); 
+    			JsonResult.put(trend.getKey(), trend.getValue());
+    		}     	
+        	collector.emit(new Values(JsonResult)); 
     }
 }
