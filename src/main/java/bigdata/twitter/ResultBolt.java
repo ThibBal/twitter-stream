@@ -2,7 +2,6 @@ package bigdata.twitter;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedMap;
 
 import org.json.simple.JSONObject;
 

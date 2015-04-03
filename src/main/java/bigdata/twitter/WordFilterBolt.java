@@ -19,8 +19,7 @@ public class WordFilterBolt extends BaseRichBolt {
             "a", "http", "the", "you", "and", "for", "that", "like", "have", "this", "just", "with", "all", "get", "about",
             "can", "was", "not", "your", "but", "are", "one", "what", "out", "when", "get",
             "want", "will", "know", "good", "from", "https", "because", "people", "twitter", "follow", "www", "please", "today", 
-            "great", "thanks"
-            
+            "great", "thanks", "follower", "⇒http", "→http", "followers"            
     }));
     private final static Set<String> LANGUAGES = new HashSet<String>(Arrays.asList(new String[] {
     		"fr", "en", "es", "de", "it", "pt", "ko", "tr", "ru", "nl", "no", "sv", "fi", "da", "pl", "hu"
@@ -38,7 +37,6 @@ public class WordFilterBolt extends BaseRichBolt {
     	String language = (String) input.getValueByField("language");
         String word = (String) input.getValueByField("word");
         
-        //if ((!BLACKLIST_WORDS.contains(word)) && (LANGUAGES.contains(language))) {
         if ((!BLACKLIST_WORDS.contains(word))
         		&& (LANGUAGES.contains(language))
         		&& (word.length() >= MINIMUM_LENGTH) ) {

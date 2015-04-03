@@ -1,0 +1,12 @@
+body{
+	background-image: url(img/Back-tweet.png);
+	-webkit-background-size: cover; /* pour anciens Chrome et Safari */
+  	background-size: cover; /* version standardisée */
+  	background-repeat: no-repeat;
+  	background-attachment:fixed;
+  	overflow: hidden;  	
+}
+
+#result{
+	text-align: center;
+}

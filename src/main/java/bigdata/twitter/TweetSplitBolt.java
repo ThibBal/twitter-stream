@@ -26,11 +26,11 @@ public class TweetSplitBolt extends BaseRichBolt {
         String[] words = text.split(" ");
         
         for (String word : words) {
-                collector.emit(new Values(language, word)); 
+                collector.emit(new Values(word, language)); 
         }
     }
 
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("language", "word"));
+        declarer.declare(new Fields("word", "language"));
     }
 }

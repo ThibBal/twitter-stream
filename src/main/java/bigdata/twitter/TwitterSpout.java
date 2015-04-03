@@ -24,8 +24,7 @@ public class TwitterSpout extends BaseRichSpout {
     private LinkedBlockingQueue<Status> queue;
     private TwitterStream twitterStream;
 
-	public void open(Map conf, TopologyContext context,
-			SpoutOutputCollector collector) {
+	public void open(Map conf, TopologyContext context,	SpoutOutputCollector collector) {
 		queue = new LinkedBlockingQueue<Status>(1000);
 		this.collector = collector;
 
