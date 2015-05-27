@@ -1,6 +1,5 @@
 # twitter-trends
-Projet du module Big Data à l'ISEP, par Thibault BALMETTE, Arnaud BUSO & Thomas DEUDON
-
+Projet du module Big Data à l'ISEP
 -----
 Utilisation de Maven, Storm, twitter4j pour calculer, en JAVA, les mots les plus utilisés sur Twitter au cours des 30 dernières minutes.
 Utilisation du JQCloud pour générer un nuage de mots 
